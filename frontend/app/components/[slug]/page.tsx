@@ -5,18 +5,22 @@ import { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import PreviewList from "@/components/ui/Preview/index";
 
-export const dynamic = "force-dynamic"; // 🔥 Evita la generación estática en Vercel
-export const revalidate = 0; // 🔥 Se asegura que siempre se renderice en el servidor
-export const fetchCache = "force-no-store"; // 🔥 Desactiva la caché en producción
+export const dynamic = "force-dynamic"; // 🚀 Evita la generación estática en Vercel
+export const revalidate = 0; // 🚀 Se asegura que siempre se renderice en el servidor
+export const fetchCache = "force-no-store"; // 🚀 Desactiva la caché en producción
 
 interface MdxFile {
   filename: string;
   source: MDXRemoteSerializeResult;
 }
 
-// 🔥 Ajustamos `params` para que sea tratado como una `Promise`
-export default async function ComponentsPage({ params }: { params: Promise<{ slug?: string }> }) {
-  const resolvedParams = await params; // ✅ Esperamos la promesa
+// ✅ Corregimos el tipo de `params` usando `Promise.resolve`
+export default async function ComponentsPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const resolvedParams = await Promise.resolve(params); // ✅ Asegura que `params` se resuelva como Next.js espera
   const slug = resolvedParams.slug || "";
 
   if (!slug) {
@@ -32,6 +36,14 @@ export default async function ComponentsPage({ params }: { params: Promise<{ slu
 
   try {
     const files = await fs.readdir(componentDir).catch(() => []);
+    if (!files.length) {
+      return (
+        <div style={{ padding: "1rem" }}>
+          <h1>No hay archivos en esta categoría</h1>
+        </div>
+      );
+    }
+
     const mdxFilesFiltered = files.filter((f) => f.endsWith(".mdx"));
 
     mdxFiles = await Promise.all(
