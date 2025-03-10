@@ -5,28 +5,28 @@ import { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import PreviewList from "@/components/ui/Preview/index";
 
-export const dynamic = "force-dynamic"; // 🚀 Evita la generación estática en Vercel
-export const revalidate = 0; // 🚀 Se asegura que siempre se renderice en el servidor
-export const fetchCache = "force-no-store"; // 🚀 Desactiva la caché en producción
+export const dynamic = "force-dynamic"; // 🚀 Asegura que siempre se renderice en el servidor
+export const revalidate = 0; // 🚀 Evita caché en la build
+export const fetchCache = "force-no-store"; // 🚀 No almacena caché en producción
 
 interface MdxFile {
   filename: string;
   source: MDXRemoteSerializeResult;
 }
 
-// ✅ Corregimos el tipo de `params` usando `Promise.resolve`
+// ✅ `params` ahora es una `Promise` y se resuelve con `await`
 export default async function ComponentsPage({
-  params,
+  params: paramsPromise,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug?: string }>;
 }) {
-  const resolvedParams = await Promise.resolve(params); // ✅ Asegura que `params` se resuelva como Next.js espera
-  const slug = resolvedParams.slug || "";
+  const params = await paramsPromise; // ✅ Next.js 15 espera esto en producción
+  const slug = params.slug ? decodeURIComponent(params.slug) : "";
 
   if (!slug) {
     return (
       <div style={{ padding: "1rem" }}>
-        <h1>Error: No se proporcionó un slug válido</h1>
+        <h1>⚠️ Error: No se proporcionó un slug válido</h1>
       </div>
     );
   }
@@ -35,16 +35,17 @@ export default async function ComponentsPage({
   let mdxFiles: MdxFile[] = [];
 
   try {
-    const files = await fs.readdir(componentDir).catch(() => []);
-    if (!files.length) {
+    await fs.access(componentDir); // ✅ Verifica si la carpeta existe en Vercel
+    const files = await fs.readdir(componentDir);
+    const mdxFilesFiltered = files.filter((f) => f.endsWith(".mdx"));
+
+    if (!mdxFilesFiltered.length) {
       return (
         <div style={{ padding: "1rem" }}>
-          <h1>No hay archivos en esta categoría</h1>
+          <h1>⚠️ No hay archivos en esta categoría</h1>
         </div>
       );
     }
-
-    const mdxFilesFiltered = files.filter((f) => f.endsWith(".mdx"));
 
     mdxFiles = await Promise.all(
       mdxFilesFiltered.map(async (file) => {
@@ -59,15 +60,20 @@ export default async function ComponentsPage({
     );
   } catch (err) {
     console.error("❌ Error al cargar los archivos MDX:", err);
+    return (
+      <div style={{ padding: "1rem" }}>
+        <h1>⚠️ Error al cargar los archivos MDX</h1>
+      </div>
+    );
   }
 
   return (
     <div style={{ padding: "1rem" }}>
-      <h1>Componentes de {slug}</h1>
+      <h1>📂 Componentes de {slug}</h1>
       {mdxFiles.length > 0 ? (
         <PreviewList mdxFiles={mdxFiles} />
       ) : (
-        <p>No hay archivos MDX disponibles en esta categoría.</p>
+        <p>⚠️ No hay archivos MDX disponibles en esta categoría.</p>
       )}
     </div>
   );

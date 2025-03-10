@@ -8,8 +8,26 @@
   ],
   "routes": [
     {
+      "src": "^/components/(.*)$",
+      "dest": "/components/[slug]"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/$1"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/components/:slug",
+      "destination": "/components/[slug]"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, proxy-revalidate" }
+      ]
     }
   ]
 }
