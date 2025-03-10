@@ -1,18 +1,24 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import PreviewList from "@/components/ui/Preview/index";
+
+interface MdxFile {
+  filename: string;
+  source: MDXRemoteSerializeResult;
+}
 
 export default async function ComponentsPage({
   params: paramsPromise,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await paramsPromise; // 🔥 Esto evita el error
+  const { slug } = await paramsPromise;
 
   const componentDir = path.join(process.cwd(), "componentsDB", slug);
-  let mdxFiles: { filename: string; source: any }[] = [];
+  let mdxFiles: MdxFile[] = [];
 
   try {
     const files = fs.readdirSync(componentDir).filter((f) => f.endsWith(".mdx"));
