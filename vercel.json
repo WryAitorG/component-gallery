@@ -8,8 +8,12 @@
   ],
   "rewrites": [
     {
-      "source": "/components/(.*)",
+      "source": "/components/:slug",
       "destination": "/frontend/components/[slug]"
+    },
+    {
+      "source": "/previewsComponents/:slug",
+      "destination": "/frontend/previewsComponents/[slug]"
     },
     {
       "source": "/(.*)",
