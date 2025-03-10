@@ -6,11 +6,10 @@ export async function loadMdxComponents(mdxFiles: { filename: string }[], catego
   const imports = await Promise.all(
     mdxFiles.map(async ({ filename }) => {
       try {
-        // 📌 ✅ Importar el MDX como componente
         const module = await import(`@/componentsDB/${category}/${filename}.mdx`);
 
-        // 📌 ✅ Obtener el código TSX como string desde utils/rawfiles.ts
-        const tsxSource = await getRawTsx(filename); // 👈 Importante usar `await`
+        // ✅ Obtener el código TSX desde la API en vez de leerlo con `fs`
+        const tsxSource = await getRawTsx(filename);
 
         return { [filename]: { component: module.default, tsxSource } };
       } catch (error) {
