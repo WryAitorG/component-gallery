@@ -6,25 +6,10 @@
       "use": "@vercel/next"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/components/:slug",
-      "destination": "/components/[slug]"
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/",
-      "destination": "/index",
-      "statusCode": 308
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, proxy-revalidate" }
-      ]
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
     }
   ]
 }
