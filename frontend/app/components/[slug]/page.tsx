@@ -5,6 +5,12 @@ import { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import PreviewList from "@/components/ui/Preview/index";
 
+
+
+export const dynamic = "force-dynamic"; // 🔥 Evita que Vercel use una versión en caché
+export const revalidate = 0; // 🔥 Desactiva la revalidación en caché
+
+
 interface MdxFile {
   filename: string;
   source: MDXRemoteSerializeResult;
