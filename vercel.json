@@ -12,6 +12,13 @@
       "destination": "/components/[slug]"
     }
   ],
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/index",
+      "statusCode": 308
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
