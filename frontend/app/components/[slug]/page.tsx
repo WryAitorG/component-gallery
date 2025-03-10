@@ -5,16 +5,20 @@ import { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import PreviewList from "@/components/ui/Preview/index";
 
-export const dynamic = "force-dynamic"; // 🚀 Evita caché en Vercel
-export const revalidate = 0; // 🚀 Asegura renderizado en el servidor
+export const dynamic = "force-dynamic"; // 🔥 Evita la generación estática en Vercel
+export const revalidate = 0; // 🔥 Se asegura que siempre se renderice en el servidor
+export const fetchCache = "force-no-store"; // 🔥 Desactiva la caché en producción
 
 interface MdxFile {
   filename: string;
   source: MDXRemoteSerializeResult;
 }
 
+// 🔥 Ajustamos `params` para que sea tratado como una `Promise`
 export default async function ComponentsPage({ params }: { params: Promise<{ slug?: string }> }) {
-  const { slug } = await params; // ✅ Ahora `params` es asíncrono y se espera antes de usarlo
+  const resolvedParams = await params; // ✅ Esperamos la promesa
+  const slug = resolvedParams.slug || "";
+
   if (!slug) {
     return (
       <div style={{ padding: "1rem" }}>
@@ -27,7 +31,6 @@ export default async function ComponentsPage({ params }: { params: Promise<{ slu
   let mdxFiles: MdxFile[] = [];
 
   try {
-    // ✅ Verificar si la carpeta existe antes de intentar leer archivos
     const files = await fs.readdir(componentDir).catch(() => []);
     const mdxFilesFiltered = files.filter((f) => f.endsWith(".mdx"));
 
