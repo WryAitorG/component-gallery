@@ -2,22 +2,16 @@
   "version": 2,
   "builds": [
     {
-      "src": "frontend/package.json",
+      "src": "package.json",
       "use": "@vercel/next"
     }
   ],
-  "rewrites": [
-    {
-      "source": "/components/:slug",
-      "destination": "/frontend/components/[slug]"
-    },
-    {
-      "source": "/previewsComponents/:slug",
-      "destination": "/frontend/previewsComponents/[slug]"
-    },
+  "headers": [
     {
       "source": "/(.*)",
-      "destination": "/frontend/$1"
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, proxy-revalidate" }
+      ]
     }
   ]
 }
